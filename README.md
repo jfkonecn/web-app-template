@@ -57,3 +57,34 @@ docker compose -f docker-dev/docker-compose.yml down
 ## Migrate Binary
 
 You can find releases/source here: https://github.com/golang-migrate/migrate/tree/master
+
+Create or install the `migrate` binary into `./bin`:
+
+```bash
+./scripts/install-migrate.sh
+```
+
+According to the migrate docs (`migrate create -ext sql -dir <DIR> -seq <NAME>`), create a new migration with:
+
+```bash
+./scripts/create-migration.sh create_users_table
+```
+
+This writes sequential SQL migration files into `db/migrations`, for example:
+
+- `db/migrations/000001_create_users_table.up.sql`
+- `db/migrations/000001_create_users_table.down.sql`
+
+Apply migrations to the Docker PostgreSQL database:
+
+```bash
+./scripts/apply-migrations.sh
+```
+
+`apply-migrations.sh` uses these defaults (override with env vars):
+
+- `POSTGRES_HOST=localhost`
+- `POSTGRES_PORT=5432`
+- `POSTGRES_USER=postgres`
+- `POSTGRES_PASSWORD=postgres`
+- `POSTGRES_DB=web_app_template`
