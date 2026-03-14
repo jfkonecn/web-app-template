@@ -1,0 +1,14 @@
+# Go build/test artifacts
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Coverage and temp
+coverage.out
+tmp/
+
+bin/*
+!bin/*.tar.gz
