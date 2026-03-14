@@ -1,13 +1,16 @@
 package server
 
 import (
+	"log/slog"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jfkonecn/web-app-template/internal/handlers"
+	"github.com/jfkonecn/web-app-template/internal/middleware"
 )
 
-func NewRouter() *gin.Engine {
+func NewRouter(logger *slog.Logger) *gin.Engine {
 	r := gin.New()
-	r.Use(gin.Logger(), gin.Recovery())
+	r.Use(middleware.RequestLogger(logger), gin.Recovery())
 
 	r.GET("/healthz", handlers.Health)
 
