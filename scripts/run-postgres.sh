@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
-compose_file="docker-dev/docker-compose.yml"
+
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd -- "${script_dir}/.." && pwd)"
+compose_file="${repo_root}/docker-dev/docker-compose.yml"
 
 if docker compose version >/dev/null 2>&1; then
   compose_cmd=(docker compose)
