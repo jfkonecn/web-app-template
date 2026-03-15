@@ -1,0 +1,16 @@
+{
+  "name": "web-app-template",
+  "version": "1.0.0",
+  "description": "Conventional Go repository layout with a Gin web server.",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "scripts": {
+    "build:css": "npx @tailwindcss/cli -i ./web/src/styles.css -o ./web/static/styles.css --minify",
+    "watch:css": "npx @tailwindcss/cli -i ./web/src/styles.css -o ./web/static/styles.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.2.1",
+    "tailwindcss": "^4.2.1"
+  }
+}

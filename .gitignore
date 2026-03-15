@@ -10,5 +10,5 @@
 coverage.out
 tmp/
 
-bin/*
-!bin/*.tar.gz
+# Node dependencies
+node_modules/

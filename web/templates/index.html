@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tailwind Test</title>
+    <link href="/static/styles.css" rel="stylesheet" />
+  </head>
+  <body class="min-h-screen bg-stone-950 text-stone-100">
+    <main class="relative isolate overflow-hidden">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.18),transparent_28%),radial-gradient(circle_at_80%_20%,rgba(56,189,248,0.22),transparent_20%),linear-gradient(180deg,#0c0a09_0%,#1c1917_100%)]"></div>
+      <div class="relative mx-auto flex min-h-screen max-w-6xl flex-col justify-center px-6 py-24 sm:px-10">
+        <p class="mb-6 text-sm font-semibold uppercase tracking-[0.35em] text-amber-300">Gin + Tailwind</p>
+        <h1 class="max-w-4xl font-sans text-5xl font-black tracking-tight text-white sm:text-7xl">
+          Tailwind is wired into the Go server.
+        </h1>
+        <p class="mt-8 max-w-2xl text-lg leading-8 text-stone-300 sm:text-xl">
+          This page is served by Gin at <code class="rounded bg-white/10 px-2 py-1 text-sm text-amber-200">/</code>,
+          and the styling comes from a locally built Tailwind CSS bundle.
+        </p>
+        <div class="mt-10 flex flex-wrap gap-4">
+          <a
+            class="rounded-full bg-amber-300 px-5 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-200"
+            href="/healthz"
+          >
+            Check health endpoint
+          </a>
+          <span class="rounded-full border border-white/15 bg-white/5 px-5 py-3 text-sm text-stone-200">
+            Edit <code>web/templates/index.html</code> and rebuild CSS
+          </span>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
