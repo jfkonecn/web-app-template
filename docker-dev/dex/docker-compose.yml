@@ -5,5 +5,5 @@ services:
     ports:
       - "5556:5556"
     volumes:
-      - ./config.yaml:/etc/dex/config.yaml
+      - ./config.yml:/etc/dex/config.yaml
     command: ["dex", "serve", "/etc/dex/config.yaml"]

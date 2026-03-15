@@ -28,6 +28,11 @@ type Config struct {
 	PostgresPassword string
 	PostgresDB       string
 	PostgresSSLMode  string
+	OIDCBaseURL      string
+	OIDCLogoutURL    string
+	OIDCClientID     string
+	OIDCClientSecret string
+	OIDCCallbackURL  string
 }
 
 func Load() Config {
@@ -41,6 +46,11 @@ func Load() Config {
 		PostgresPassword: getEnv("POSTGRES_PASSWORD", defaultPostgresPassword),
 		PostgresDB:       getEnv("POSTGRES_DB", defaultPostgresDB),
 		PostgresSSLMode:  getEnv("POSTGRES_SSLMODE", defaultPostgresSSLMode),
+		OIDCBaseURL:      mustGetEnv("OIDC_BASE_URL"),
+		OIDCLogoutURL:    getEnv("OIDC_LOGOUT_URL", ""),
+		OIDCClientID:     mustGetEnv("OIDC_CLIENT_ID"),
+		OIDCClientSecret: mustGetEnv("OIDC_CLIENT_SECRET"),
+		OIDCCallbackURL:  mustGetEnv("OIDC_CALLBACK_URL"),
 	}
 }
 
@@ -66,4 +76,14 @@ func getEnv(key, fallback string) string {
 		return v
 	}
 	return fallback
+}
+
+func mustGetEnv(key string) string {
+	if v, ok := os.LookupEnv(key); ok && v != "" {
+		return v
+	}
+
+	fmt.Fprintf(os.Stderr, "missing required environment variable %s; please set %s\n", key, key)
+	os.Exit(1)
+	return ""
 }

@@ -57,6 +57,10 @@ func TestOpenRunsMigrationsUpDownUp(t *testing.T) {
 	t.Setenv("POSTGRES_PASSWORD", dbPass)
 	t.Setenv("POSTGRES_DB", dbName)
 	t.Setenv("POSTGRES_SSLMODE", sslMode)
+	t.Setenv("OIDC_DOMAIN", "http://localhost:5556/dex")
+	t.Setenv("OIDC_CLIENT_ID", "example-app")
+	t.Setenv("OIDC_CLIENT_SECRET", "XXXXXXXXXXXXXXXXXXXXXXXX")
+	t.Setenv("OIDC_CALLBACK_URL", "http://localhost:8080/callback")
 
 	migrationsDir := repoMigrationsDir(t)
 

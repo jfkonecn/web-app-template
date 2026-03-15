@@ -7,7 +7,7 @@ web:
 staticClients:
   - id: example-app
     redirectURIs:
-      - "http://localhost:5555/callback"
+      - "http://localhost:8080/callback"
     name: "Example App"
     secret: ZXhhbXBsZS1hcHAtc2VjcmV0
 enablePasswordDB: true
