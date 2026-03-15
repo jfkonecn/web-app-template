@@ -15,6 +15,8 @@ func NewRouter(logger *slog.Logger) *gin.Engine {
 	r.Static("/static", "./web/static")
 
 	r.GET("/", handlers.Index)
+	r.GET("/login", handlers.LoginPage)
+	r.POST("/login", handlers.Login)
 	r.GET("/healthz", handlers.Health)
 
 	return r
