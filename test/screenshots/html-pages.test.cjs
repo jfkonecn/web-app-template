@@ -4,6 +4,11 @@ const { startFixtureServer } = require("./helpers/fixture-server.cjs");
 
 const goldensDir = path.join(__dirname, "__goldens__");
 const artifactsDir = path.join(__dirname, "__artifacts__");
+const screenshotViewport = {
+  width: 1440,
+  height: 1100,
+  deviceScaleFactor: 1,
+};
 
 expect.extend({ toMatchImageSnapshot });
 
@@ -32,6 +37,7 @@ describe("HTML page screenshots", () => {
     { name: "index", route: "/" },
     { name: "user", route: "/user" },
   ])('$name matches the committed screenshot', async ({ name, route }) => {
+    await page.setViewport(screenshotViewport);
     await page.goto(`${baseUrl}${route}`, { waitUntil: "networkidle0" });
     const screenshot = await page.screenshot({ fullPage: true });
 
