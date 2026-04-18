@@ -7,15 +7,20 @@
   "type": "commonjs",
   "scripts": {
     "build:css": "npx @tailwindcss/cli -i ./web/src/styles.css -o ./web/static/styles.css --minify",
+    "build:js": "esbuild web/src/ts/index.ts web/src/ts/user.ts --bundle --format=iife --platform=browser --target=es2020 --outdir=web/static/js --entry-names=[name] --minify",
+    "build:assets": "npm run build:css && npm run build:js",
     "watch:css": "npx @tailwindcss/cli -i ./web/src/styles.css -o ./web/static/styles.css --watch",
+    "watch:js": "esbuild web/src/ts/index.ts web/src/ts/user.ts --bundle --format=iife --platform=browser --target=es2020 --outdir=web/static/js --entry-names=[name] --watch",
     "test:screenshots": "jest --config jest.config.cjs --runInBand",
     "test:screenshots:update": "UPDATE_SCREENSHOTS=1 jest --config jest.config.cjs --runInBand"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.2.1",
+    "esbuild": "^0.28.0",
     "jest": "^30.3.0",
     "jest-puppeteer": "^11.0.0",
-    "tailwindcss": "^4.2.1"
+    "tailwindcss": "^4.2.1",
+    "typescript": "^6.0.3"
   },
   "dependencies": {
     "ci": "^2.3.0"

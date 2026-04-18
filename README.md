@@ -23,6 +23,18 @@ Build the frontend CSS bundle:
 npm run build:css
 ```
 
+Build the client-side TypeScript bundles:
+
+```bash
+npm run build:js
+```
+
+Build both frontend asset types:
+
+```bash
+npm run build:assets
+```
+
 Run the HTML screenshot tests:
 
 ```bash
