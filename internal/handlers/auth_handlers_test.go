@@ -14,7 +14,6 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
-	"github.com/jfkonecn/web-app-template/internal/config"
 	"golang.org/x/oauth2"
 )
 
@@ -127,6 +126,42 @@ func TestCallbackPageSuccessStoresProfileAndRedirects(t *testing.T) {
 	}
 }
 
+func TestUserPageRendersNameFromSessionProfile(t *testing.T) {
+	t.Parallel()
+
+	gin.SetMode(gin.TestMode)
+	gob.Register(map[string]interface{}{})
+
+	router := gin.New()
+	store := cookie.NewStore([]byte("test-secret"))
+	router.Use(sessions.Sessions("auth-session", store))
+	router.SetHTMLTemplate(template.Must(template.New("user.html").Parse(`{{ .name }}|{{ .email }}`)))
+	router.GET("/user", func(c *gin.Context) {
+		session := sessions.Default(c)
+		session.Set("profile", map[string]interface{}{
+			"name":  "Dex Admin",
+			"email": "admin@example.com",
+		})
+		if err := session.Save(); err != nil {
+			c.String(http.StatusInternalServerError, err.Error())
+			return
+		}
+		UserPage(c)
+	})
+
+	req := httptest.NewRequest(http.MethodGet, "/user", nil)
+	rec := httptest.NewRecorder()
+
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected status %d, got %d", http.StatusOK, rec.Code)
+	}
+	if body := rec.Body.String(); body != "Dex Admin|admin@example.com" {
+		t.Fatalf("expected rendered profile details, got %q", body)
+	}
+}
+
 func TestCallbackPageRejectsInvalidState(t *testing.T) {
 	t.Parallel()
 
@@ -203,7 +238,7 @@ func TestCallbackPageReturnsInternalServerErrorWhenTokenCannotBeVerified(t *test
 	}
 }
 
-func TestLogoutPageClearsSessionAndRedirectsLocallyWhenNoProviderLogoutURL(t *testing.T) {
+func TestLogoutPageClearsSessionAndRedirectsHome(t *testing.T) {
 	t.Parallel()
 
 	router := newAuthTestRouter(&stubAuthFlow{})
@@ -243,7 +278,7 @@ func newAuthTestRouter(auth authFlow) *gin.Engine {
 
 	router.GET("/login", LoginPage(auth))
 	router.GET("/callback", CallbackPage(auth))
-	router.GET("/logout", LogoutPage(config.Config{}))
+	router.GET("/logout", LogoutPage())
 	router.GET("/user", UserPage)
 
 	return router

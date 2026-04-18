@@ -9,7 +9,13 @@ import (
 
 func UserPage(c *gin.Context) {
 	session := sessions.Default(c)
-	profile := session.Get("profile")
+	profile, _ := session.Get("profile").(map[string]interface{})
 
-	c.HTML(http.StatusOK, "user.html", profile)
+	name, _ := profile["name"].(string)
+	email, _ := profile["email"].(string)
+
+	c.HTML(http.StatusOK, "user.html", gin.H{
+		"name":  name,
+		"email": email,
+	})
 }

@@ -22,6 +22,7 @@ Environment files:
 - Copy `.env.example` to `.env` for local development
 - `.env` is ignored by git and is loaded automatically by the run and migration scripts
 - `internal/config` no longer provides runtime defaults; startup exits if any required env var is missing or empty
+- Logout is local to the app session; the dev Dex setup in this repo does not use a provider logout redirect
 
 Server defaults:
 

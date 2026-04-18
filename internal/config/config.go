@@ -19,7 +19,6 @@ type Config struct {
 	PostgresDB       string
 	PostgresSSLMode  string
 	OIDCBaseURL      string
-	OIDCLogoutURL    string
 	OIDCClientID     string
 	OIDCClientSecret string
 	OIDCCallbackURL  string
@@ -38,7 +37,6 @@ func Load() Config {
 		PostgresDB:       mustGetEnv("POSTGRES_DB"),
 		PostgresSSLMode:  mustGetEnv("POSTGRES_SSLMODE"),
 		OIDCBaseURL:      mustGetEnv("OIDC_BASE_URL"),
-		OIDCLogoutURL:    mustGetEnv("OIDC_LOGOUT_URL"),
 		OIDCClientID:     mustGetEnv("OIDC_CLIENT_ID"),
 		OIDCClientSecret: mustGetEnv("OIDC_CLIENT_SECRET"),
 		OIDCCallbackURL:  mustGetEnv("OIDC_CALLBACK_URL"),
