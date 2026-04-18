@@ -7,10 +7,17 @@
   "type": "commonjs",
   "scripts": {
     "build:css": "npx @tailwindcss/cli -i ./web/src/styles.css -o ./web/static/styles.css --minify",
-    "watch:css": "npx @tailwindcss/cli -i ./web/src/styles.css -o ./web/static/styles.css --watch"
+    "watch:css": "npx @tailwindcss/cli -i ./web/src/styles.css -o ./web/static/styles.css --watch",
+    "test:screenshots": "jest --config jest.config.cjs --runInBand",
+    "test:screenshots:update": "UPDATE_SCREENSHOTS=1 jest --config jest.config.cjs --runInBand"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.2.1",
+    "jest": "^30.3.0",
+    "jest-puppeteer": "^11.0.0",
     "tailwindcss": "^4.2.1"
+  },
+  "dependencies": {
+    "ci": "^2.3.0"
   }
 }

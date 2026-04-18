@@ -17,6 +17,24 @@ Conventional Go repository layout with a Gin web server.
 ./scripts/run.sh
 ```
 
+Build the frontend CSS bundle:
+
+```bash
+npm run build:css
+```
+
+Run the HTML screenshot tests:
+
+```bash
+npm run test:screenshots
+```
+
+Refresh the committed golden screenshots after an intentional UI change:
+
+```bash
+npm run test:screenshots:update
+```
+
 Environment files:
 
 - Copy `.env.example` to `.env` for local development
