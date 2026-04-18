@@ -35,6 +35,33 @@ Build both frontend asset types:
 npm run build:assets
 ```
 
+Build the Docker image:
+
+```bash
+docker build -t web-app-template .
+```
+
+Run the server container:
+
+```bash
+docker run --rm -p 8080:8080 \
+  -e APP_ENV=production \
+  -e APP_HOST=0.0.0.0 \
+  -e APP_PORT=8080 \
+  -e SESSION_SECRET=replace-me \
+  -e POSTGRES_HOST=replace-me \
+  -e POSTGRES_PORT=5432 \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=web_app_template \
+  -e POSTGRES_SSLMODE=disable \
+  -e OIDC_BASE_URL=replace-me \
+  -e OIDC_CLIENT_ID=replace-me \
+  -e OIDC_CLIENT_SECRET=replace-me \
+  -e OIDC_CALLBACK_URL=http://localhost:8080/callback \
+  web-app-template
+```
+
 Run the HTML screenshot tests:
 
 ```bash
