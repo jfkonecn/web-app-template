@@ -9,6 +9,7 @@
 # Coverage and temp
 coverage.out
 tmp/
+.env
 
 # Node dependencies
 node_modules/

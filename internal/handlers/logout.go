@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/jfkonecn/web-app-template/internal/config"
 )
@@ -11,6 +12,17 @@ import (
 // Handler for our logout.
 func LogoutPage(config config.Config) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		session := sessions.Default(ctx)
+		session.Clear()
+		session.Options(sessions.Options{
+			Path:   "/",
+			MaxAge: -1,
+		})
+		if err := session.Save(); err != nil {
+			ctx.String(http.StatusInternalServerError, err.Error())
+			return
+		}
+
 		if config.OIDCLogoutURL == "" {
 			ctx.Redirect(http.StatusTemporaryRedirect, "/")
 			return

@@ -7,10 +7,9 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/jfkonecn/web-app-template/internal/authenticator"
 )
 
-func LoginPage(auth *authenticator.Authenticator) gin.HandlerFunc {
+func LoginPage(auth authFlow) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		state, err := generateRandomState()
 		if err != nil {

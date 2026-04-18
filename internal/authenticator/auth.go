@@ -54,3 +54,17 @@ func (a *Authenticator) VerifyIDToken(ctx context.Context, token *oauth2.Token) 
 
 	return a.Verifier(oidcConfig).Verify(ctx, rawIDToken)
 }
+
+func (a *Authenticator) VerifyIDTokenClaims(ctx context.Context, token *oauth2.Token) (map[string]interface{}, error) {
+	idToken, err := a.VerifyIDToken(ctx, token)
+	if err != nil {
+		return nil, err
+	}
+
+	var profile map[string]interface{}
+	if err := idToken.Claims(&profile); err != nil {
+		return nil, err
+	}
+
+	return profile, nil
+}

@@ -7,21 +7,11 @@ import (
 	"os"
 )
 
-const (
-	defaultHost             = "0.0.0.0"
-	defaultPort             = "8080"
-	defaultPostgresHost     = "localhost"
-	defaultPostgresPort     = "5432"
-	defaultPostgresUser     = "postgres"
-	defaultPostgresPassword = "postgres"
-	defaultPostgresDB       = "web_app_template"
-	defaultPostgresSSLMode  = "disable"
-)
-
 type Config struct {
 	Env              string
 	Host             string
 	Port             string
+	SessionSecret    string
 	PostgresHost     string
 	PostgresPort     string
 	PostgresUser     string
@@ -37,17 +27,18 @@ type Config struct {
 
 func Load() Config {
 	return Config{
-		Env:              getEnv("APP_ENV", "development"),
-		Host:             getEnv("APP_HOST", defaultHost),
-		Port:             getEnv("APP_PORT", defaultPort),
-		PostgresHost:     getEnv("POSTGRES_HOST", defaultPostgresHost),
-		PostgresPort:     getEnv("POSTGRES_PORT", defaultPostgresPort),
-		PostgresUser:     getEnv("POSTGRES_USER", defaultPostgresUser),
-		PostgresPassword: getEnv("POSTGRES_PASSWORD", defaultPostgresPassword),
-		PostgresDB:       getEnv("POSTGRES_DB", defaultPostgresDB),
-		PostgresSSLMode:  getEnv("POSTGRES_SSLMODE", defaultPostgresSSLMode),
+		Env:              mustGetEnv("APP_ENV"),
+		Host:             mustGetEnv("APP_HOST"),
+		Port:             mustGetEnv("APP_PORT"),
+		SessionSecret:    mustGetEnv("SESSION_SECRET"),
+		PostgresHost:     mustGetEnv("POSTGRES_HOST"),
+		PostgresPort:     mustGetEnv("POSTGRES_PORT"),
+		PostgresUser:     mustGetEnv("POSTGRES_USER"),
+		PostgresPassword: mustGetEnv("POSTGRES_PASSWORD"),
+		PostgresDB:       mustGetEnv("POSTGRES_DB"),
+		PostgresSSLMode:  mustGetEnv("POSTGRES_SSLMODE"),
 		OIDCBaseURL:      mustGetEnv("OIDC_BASE_URL"),
-		OIDCLogoutURL:    getEnv("OIDC_LOGOUT_URL", ""),
+		OIDCLogoutURL:    mustGetEnv("OIDC_LOGOUT_URL"),
 		OIDCClientID:     mustGetEnv("OIDC_CLIENT_ID"),
 		OIDCClientSecret: mustGetEnv("OIDC_CLIENT_SECRET"),
 		OIDCCallbackURL:  mustGetEnv("OIDC_CALLBACK_URL"),
@@ -69,13 +60,6 @@ func (c Config) PostgresDSN() string {
 		Path:     c.PostgresDB,
 		RawQuery: query.Encode(),
 	}).String()
-}
-
-func getEnv(key, fallback string) string {
-	if v, ok := os.LookupEnv(key); ok && v != "" {
-		return v
-	}
-	return fallback
 }
 
 func mustGetEnv(key string) string {

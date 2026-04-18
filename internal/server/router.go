@@ -21,7 +21,7 @@ func NewRouter(logger *slog.Logger, auth *authenticator.Authenticator, config co
 	// we must first register them using gob.Register
 	gob.Register(map[string]interface{}{})
 
-	store := cookie.NewStore([]byte("secret"))
+	store := cookie.NewStore([]byte(config.SessionSecret))
 	r.Use(sessions.Sessions("auth-session", store))
 
 	r.LoadHTMLGlob("web/templates/*")
@@ -29,7 +29,6 @@ func NewRouter(logger *slog.Logger, auth *authenticator.Authenticator, config co
 
 	r.GET("/", handlers.Index)
 	r.GET("/login", handlers.LoginPage(auth))
-	r.POST("/login", handlers.LoginPage(auth))
 	r.GET("/logout", handlers.LogoutPage(config))
 	r.GET("/user", handlers.UserPage)
 	r.GET("/callback", handlers.CallbackPage(auth))

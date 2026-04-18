@@ -5,11 +5,10 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/jfkonecn/web-app-template/internal/authenticator"
 )
 
 // Handler for our callback.
-func CallbackPage(auth *authenticator.Authenticator) gin.HandlerFunc {
+func CallbackPage(auth authFlow) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		session := sessions.Default(ctx)
 		if ctx.Query("state") != session.Get("state") {
@@ -24,15 +23,9 @@ func CallbackPage(auth *authenticator.Authenticator) gin.HandlerFunc {
 			return
 		}
 
-		idToken, err := auth.VerifyIDToken(ctx.Request.Context(), token)
+		profile, err := auth.VerifyIDTokenClaims(ctx.Request.Context(), token)
 		if err != nil {
 			ctx.String(http.StatusInternalServerError, "Failed to verify ID Token.")
-			return
-		}
-
-		var profile map[string]interface{}
-		if err := idToken.Claims(&profile); err != nil {
-			ctx.String(http.StatusInternalServerError, err.Error())
 			return
 		}
 

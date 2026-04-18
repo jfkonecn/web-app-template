@@ -17,11 +17,18 @@ Conventional Go repository layout with a Gin web server.
 ./scripts/run.sh
 ```
 
+Environment files:
+
+- Copy `.env.example` to `.env` for local development
+- `.env` is ignored by git and is loaded automatically by the run and migration scripts
+- `internal/config` no longer provides runtime defaults; startup exits if any required env var is missing or empty
+
 Server defaults:
 
 - `APP_ENV=development`
 - `APP_HOST=0.0.0.0`
 - `APP_PORT=8080`
+- `SESSION_SECRET` is required and must be set to a strong random value
 
 Health endpoint:
 
