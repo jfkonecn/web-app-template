@@ -36,9 +36,9 @@ func AdminExamplePage(c *gin.Context) {
 	email, _ := profile["email"].(string)
 
 	c.HTML(http.StatusOK, "admin-example.html", gin.H{
-		"name":                name,
-		"email":               email,
-		"requiredPermission":  "read:admin",
+		"name":               name,
+		"email":              email,
+		"requiredPermission": "read:admin",
 	})
 }
 

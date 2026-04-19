@@ -12,10 +12,23 @@ function renderUserTemplate(template) {
     .replace(/{{\s*\.email\s*}}/g, "ada@example.com");
 }
 
+function renderAdminExampleTemplate(template) {
+  return template
+    .replace(/{{\s*\.name\s*}}/g, "Admin User")
+    .replace(/{{\s*\.email\s*}}/g, "admin@example.com")
+    .replace(/{{\s*\.requiredPermission\s*}}/g, "read:admin");
+}
+
+function renderForbiddenTemplate(template) {
+  return template.replace(/{{\s*\.requiredPermission\s*}}/g, "read:admin");
+}
+
 async function loadFixtures() {
-  const [indexHtml, userTemplate, stylesCss] = await Promise.all([
+  const [indexHtml, userTemplate, adminExampleTemplate, forbiddenTemplate, stylesCss] = await Promise.all([
     readFile(path.join(templatesDir, "index.html"), "utf8"),
     readFile(path.join(templatesDir, "user.html"), "utf8"),
+    readFile(path.join(templatesDir, "admin-example.html"), "utf8"),
+    readFile(path.join(templatesDir, "403.html"), "utf8"),
     readFile(path.join(staticDir, "styles.css"), "utf8"),
   ]);
 
@@ -23,6 +36,14 @@ async function loadFixtures() {
     "/": { body: indexHtml, contentType: "text/html; charset=utf-8" },
     "/user": {
       body: renderUserTemplate(userTemplate),
+      contentType: "text/html; charset=utf-8",
+    },
+    "/admin-example": {
+      body: renderAdminExampleTemplate(adminExampleTemplate),
+      contentType: "text/html; charset=utf-8",
+    },
+    "/forbidden": {
+      body: renderForbiddenTemplate(forbiddenTemplate),
       contentType: "text/html; charset=utf-8",
     },
     "/static/styles.css": {

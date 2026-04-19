@@ -36,6 +36,8 @@ describe("HTML page screenshots", () => {
   test.each([
     { name: "index", route: "/" },
     { name: "user", route: "/user" },
+    { name: "admin-example", route: "/admin-example" },
+    { name: "forbidden", route: "/forbidden" },
   ])('$name matches the committed screenshot', async ({ name, route }) => {
     await page.setViewport(screenshotViewport);
     await page.goto(`${baseUrl}${route}`, { waitUntil: "networkidle0" });
