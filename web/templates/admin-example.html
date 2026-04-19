@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Example</title>
+    <link href="/static/styles.css" rel="stylesheet" />
+  </head>
+  <body class="min-h-screen bg-stone-950 text-stone-100">
+    <main
+      class="relative isolate flex min-h-screen items-center justify-center overflow-hidden px-6 py-16"
+    >
+      <div
+        class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.18),transparent_28%),radial-gradient(circle_at_80%_20%,rgba(251,191,36,0.18),transparent_22%),linear-gradient(180deg,#0c0a09_0%,#1c1917_100%)]"
+      ></div>
+      <div
+        class="relative w-full max-w-2xl rounded-[2rem] border border-emerald-300/20 bg-white/5 p-8 shadow-2xl shadow-black/30 backdrop-blur"
+      >
+        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-300">
+          Protected Example
+        </p>
+        <h1 class="mt-4 text-4xl font-black tracking-tight text-white">
+          Admin-only content
+        </h1>
+        <p class="mt-3 text-sm leading-6 text-stone-300">
+          {{ .name }} ({{ .email }}) has the required permission
+          <code class="rounded bg-white/10 px-2 py-1 text-emerald-200">{{ .requiredPermission }}</code>.
+        </p>
+        <div class="mt-8 rounded-3xl border border-white/10 bg-black/20 p-6 text-sm leading-7 text-stone-200">
+          This page is an example of a protected route that requires the
+          <code class="rounded bg-white/10 px-2 py-1 text-emerald-200">{{ .requiredPermission }}</code>
+          permission in the authenticated session.
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

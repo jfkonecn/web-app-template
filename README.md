@@ -100,6 +100,12 @@ Start Keycloak with Docker Compose:
 ./scripts/run-keycloak.sh
 ```
 
+Clear Keycloak realm configuration:
+
+```bash
+./scripts/clear-keycloak.sh
+```
+
 The bundled import file at `docker-dev/keycloak/realm-web-app-template.json` removes the manual setup from the Keycloak Docker guide. It creates:
 
 - Realm: `web-app-template`

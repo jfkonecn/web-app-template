@@ -52,6 +52,30 @@ func sessionProfile(profile map[string]interface{}) map[string]interface{} {
 	if email, ok := profile["email"].(string); ok && email != "" {
 		sessionProfile["email"] = email
 	}
+	if permissions := stringClaims(profile["permissions"]); len(permissions) > 0 {
+		sessionProfile["permissions"] = permissions
+	}
 
 	return sessionProfile
+}
+
+func stringClaims(value interface{}) []string {
+	switch claims := value.(type) {
+	case []string:
+		return append([]string(nil), claims...)
+	case []interface{}:
+		result := make([]string, 0, len(claims))
+		for _, claim := range claims {
+			if claimString, ok := claim.(string); ok && claimString != "" {
+				result = append(result, claimString)
+			}
+		}
+		return result
+	case string:
+		if claims != "" {
+			return []string{claims}
+		}
+	}
+
+	return nil
 }

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>403 Forbidden</title>
+    <link href="/static/styles.css" rel="stylesheet" />
+  </head>
+  <body class="min-h-screen bg-stone-950 text-stone-100">
+    <main
+      class="relative isolate flex min-h-screen items-center justify-center overflow-hidden px-6 py-16"
+    >
+      <div
+        class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(248,113,113,0.2),transparent_28%),radial-gradient(circle_at_80%_20%,rgba(251,191,36,0.14),transparent_22%),linear-gradient(180deg,#0c0a09_0%,#1c1917_100%)]"
+      ></div>
+      <div
+        class="relative w-full max-w-xl rounded-[2rem] border border-red-300/20 bg-white/5 p-8 shadow-2xl shadow-black/30 backdrop-blur"
+      >
+        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-red-300">
+          403 Forbidden
+        </p>
+        <h1 class="mt-4 text-4xl font-black tracking-tight text-white">
+          You do not have access to this page.
+        </h1>
+        <p class="mt-3 text-sm leading-6 text-stone-300">
+          This route requires
+          <code class="rounded bg-white/10 px-2 py-1 text-red-200">{{ .requiredPermission }}</code>,
+          but your current session does not include it.
+        </p>
+        <a
+          class="mt-8 inline-flex rounded-full border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-stone-100 transition hover:bg-white/10"
+          href="/user"
+        >
+          Back to user page
+        </a>
+      </div>
+    </main>
+  </body>
+</html>

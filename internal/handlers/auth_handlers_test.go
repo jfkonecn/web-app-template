@@ -148,6 +148,7 @@ func TestCallbackPageStoresOnlyMinimalProfileInSession(t *testing.T) {
 		profile: map[string]interface{}{
 			"name":               "Example Admin",
 			"email":              "admin@example.com",
+			"permissions":        []interface{}{"read:admin"},
 			"preferred_username": "admin-user",
 			"realm_access": map[string]interface{}{
 				"roles": []string{"admin"},
@@ -171,7 +172,7 @@ func TestCallbackPageStoresOnlyMinimalProfileInSession(t *testing.T) {
 	sessionValues := decodeSessionValuesFromSessionCookie(t, updatedSession)
 	profile, _ := sessionValues["profile"].(map[string]interface{})
 
-	if len(profile) != 2 {
+	if len(profile) != 3 {
 		t.Fatalf("expected only name and email in session profile, got %#v", profile)
 	}
 	if profile["name"] != "Example Admin" {
@@ -179,6 +180,10 @@ func TestCallbackPageStoresOnlyMinimalProfileInSession(t *testing.T) {
 	}
 	if profile["email"] != "admin@example.com" {
 		t.Fatalf("expected email claim in session profile, got %#v", profile["email"])
+	}
+	permissions, _ := profile["permissions"].([]string)
+	if len(permissions) != 1 || permissions[0] != "read:admin" {
+		t.Fatalf("expected permissions claim in session profile, got %#v", profile["permissions"])
 	}
 	if sessionValues["id_token"] != "raw-id-token" {
 		t.Fatalf("expected id_token to be stored for logout, got %#v", sessionValues["id_token"])
@@ -218,6 +223,78 @@ func TestUserPageRendersNameFromSessionProfile(t *testing.T) {
 	}
 	if body := rec.Body.String(); body != "Example Admin|admin@example.com" {
 		t.Fatalf("expected rendered profile details, got %q", body)
+	}
+}
+
+func TestAdminExamplePageReturnsForbiddenWithoutPermission(t *testing.T) {
+	t.Parallel()
+
+	gin.SetMode(gin.TestMode)
+	gob.Register(map[string]interface{}{})
+
+	router := gin.New()
+	store := cookiepkg.NewStore([]byte("test-secret"))
+	router.Use(sessions.Sessions("auth-session", store))
+	router.SetHTMLTemplate(template.Must(template.New("403.html").Parse(`403|{{ .requiredPermission }}`)))
+	router.GET("/admin-example", func(c *gin.Context) {
+		session := sessions.Default(c)
+		session.Set("profile", map[string]interface{}{
+			"name":  "Plain User",
+			"email": "user@example.com",
+		})
+		if err := session.Save(); err != nil {
+			c.String(http.StatusInternalServerError, err.Error())
+			return
+		}
+		AdminExamplePage(c)
+	})
+
+	req := httptest.NewRequest(http.MethodGet, "/admin-example", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusForbidden {
+		t.Fatalf("expected status %d, got %d", http.StatusForbidden, rec.Code)
+	}
+	if body := rec.Body.String(); body != "403|read:admin" {
+		t.Fatalf("expected 403 page body, got %q", body)
+	}
+}
+
+func TestAdminExamplePageReturnsProtectedPageWithPermission(t *testing.T) {
+	t.Parallel()
+
+	gin.SetMode(gin.TestMode)
+	gob.Register(map[string]interface{}{})
+
+	router := gin.New()
+	store := cookiepkg.NewStore([]byte("test-secret"))
+	router.Use(sessions.Sessions("auth-session", store))
+	router.SetHTMLTemplate(template.Must(template.New("").
+		New("admin-example.html").Parse(`OK|{{ .name }}|{{ .requiredPermission }}`)))
+	router.GET("/admin-example", func(c *gin.Context) {
+		session := sessions.Default(c)
+		session.Set("profile", map[string]interface{}{
+			"name":        "Admin User",
+			"email":       "admin@example.com",
+			"permissions": []string{"read:admin"},
+		})
+		if err := session.Save(); err != nil {
+			c.String(http.StatusInternalServerError, err.Error())
+			return
+		}
+		AdminExamplePage(c)
+	})
+
+	req := httptest.NewRequest(http.MethodGet, "/admin-example", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected status %d, got %d", http.StatusOK, rec.Code)
+	}
+	if body := rec.Body.String(); body != "OK|Admin User|read:admin" {
+		t.Fatalf("expected protected page body, got %q", body)
 	}
 }
 
@@ -388,6 +465,7 @@ func newAuthTestRouter(auth authFlow) *gin.Engine {
 	router.GET("/callback", CallbackPage(auth))
 	router.GET("/logout", LogoutPage(auth))
 	router.GET("/user", UserPage)
+	router.GET("/admin-example", AdminExamplePage)
 
 	return router
 }

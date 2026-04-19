@@ -9,7 +9,12 @@
     "realm": [
       {
         "name": "admin",
-        "description": "Administrator access for local development"
+        "description": "Administrator access for local development",
+        "attributes": {
+          "permissions": [
+            "read:admin"
+          ]
+        }
       }
     ]
   },
@@ -37,6 +42,37 @@
       "attributes": {
         "post.logout.redirect.uris": "http://localhost:8080/*"
       },
+      "protocolMappers": [
+        {
+          "name": "realm-roles-claim",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "access.token.claim": "true",
+            "claim.name": "roles",
+            "id.token.claim": "true",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "permissions-claim",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "access.token.claim": "true",
+            "claim.name": "permissions",
+            "id.token.claim": "true",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "usermodel.realmRoleMapping.rolePrefix": "read:"
+          }
+        }
+      ],
       "defaultClientScopes": ["profile", "email", "roles", "web-origins"],
       "optionalClientScopes": [
         "address",
