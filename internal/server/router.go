@@ -29,7 +29,7 @@ func NewRouter(logger *slog.Logger, auth *authenticator.Authenticator, config co
 
 	r.GET("/", handlers.Index)
 	r.GET("/login", handlers.LoginPage(auth))
-	r.GET("/logout", handlers.LogoutPage())
+	r.GET("/logout", handlers.LogoutPage(auth))
 	r.GET("/user", handlers.UserPage)
 	r.GET("/callback", handlers.CallbackPage(auth))
 	r.GET("/healthz", handlers.Health)

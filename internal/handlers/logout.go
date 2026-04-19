@@ -8,9 +8,10 @@ import (
 )
 
 // Handler for our logout.
-func LogoutPage() gin.HandlerFunc {
+func LogoutPage(auth authFlow) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		session := sessions.Default(ctx)
+		idTokenHint, _ := session.Get("id_token").(string)
 		session.Clear()
 		session.Options(sessions.Options{
 			Path:   "/",
@@ -18,6 +19,11 @@ func LogoutPage() gin.HandlerFunc {
 		})
 		if err := session.Save(); err != nil {
 			ctx.String(http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		if logoutURL, ok := auth.LogoutURL(idTokenHint); ok {
+			ctx.Redirect(http.StatusTemporaryRedirect, logoutURL)
 			return
 		}
 

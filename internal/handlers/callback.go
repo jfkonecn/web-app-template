@@ -29,8 +29,10 @@ func CallbackPage(auth authFlow) gin.HandlerFunc {
 			return
 		}
 
-		session.Set("access_token", token.AccessToken)
-		session.Set("profile", profile)
+		if rawIDToken, ok := token.Extra("id_token").(string); ok && rawIDToken != "" {
+			session.Set("id_token", rawIDToken)
+		}
+		session.Set("profile", sessionProfile(profile))
 		if err := session.Save(); err != nil {
 			ctx.String(http.StatusInternalServerError, err.Error())
 			return
@@ -39,4 +41,17 @@ func CallbackPage(auth authFlow) gin.HandlerFunc {
 		// Redirect to logged in page.
 		ctx.Redirect(http.StatusTemporaryRedirect, "/user")
 	}
+}
+
+func sessionProfile(profile map[string]interface{}) map[string]interface{} {
+	sessionProfile := map[string]interface{}{}
+
+	if name, ok := profile["name"].(string); ok && name != "" {
+		sessionProfile["name"] = name
+	}
+	if email, ok := profile["email"].(string); ok && email != "" {
+		sessionProfile["email"] = email
+	}
+
+	return sessionProfile
 }

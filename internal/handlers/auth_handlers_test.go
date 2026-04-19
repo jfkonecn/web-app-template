@@ -12,7 +12,7 @@ import (
 	"testing"
 
 	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
+	cookiepkg "github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/oauth2"
 )
@@ -22,6 +22,8 @@ type stubAuthFlow struct {
 	exchangeErr   error
 	profile       map[string]interface{}
 	verifyErr     error
+	logoutURL     string
+	logoutHint    string
 }
 
 func (s *stubAuthFlow) AuthCodeURL(state string, _ ...oauth2.AuthCodeOption) string {
@@ -42,6 +44,14 @@ func (s *stubAuthFlow) VerifyIDTokenClaims(_ context.Context, _ *oauth2.Token) (
 		return nil, s.verifyErr
 	}
 	return s.profile, nil
+}
+
+func (s *stubAuthFlow) LogoutURL(idTokenHint string) (string, bool) {
+	s.logoutHint = idTokenHint
+	if s.logoutURL == "" {
+		return "", false
+	}
+	return s.logoutURL, true
 }
 
 func TestLoginPageRedirectsAndStoresState(t *testing.T) {
@@ -80,7 +90,9 @@ func TestCallbackPageSuccessStoresProfileAndRedirects(t *testing.T) {
 	t.Parallel()
 
 	auth := &stubAuthFlow{
-		exchangeToken: &oauth2.Token{AccessToken: "access-token"},
+		exchangeToken: (&oauth2.Token{AccessToken: "access-token"}).WithExtra(map[string]interface{}{
+			"id_token": "raw-id-token",
+		}),
 		profile: map[string]interface{}{
 			"name":  "Example Admin",
 			"email": "admin@example.com",
@@ -126,6 +138,53 @@ func TestCallbackPageSuccessStoresProfileAndRedirects(t *testing.T) {
 	}
 }
 
+func TestCallbackPageStoresOnlyMinimalProfileInSession(t *testing.T) {
+	t.Parallel()
+
+	auth := &stubAuthFlow{
+		exchangeToken: (&oauth2.Token{AccessToken: "access-token"}).WithExtra(map[string]interface{}{
+			"id_token": "raw-id-token",
+		}),
+		profile: map[string]interface{}{
+			"name":               "Example Admin",
+			"email":              "admin@example.com",
+			"preferred_username": "admin-user",
+			"realm_access": map[string]interface{}{
+				"roles": []string{"admin"},
+			},
+		},
+	}
+	router := newAuthTestRouter(auth)
+
+	loginRec := httptest.NewRecorder()
+	router.ServeHTTP(loginRec, httptest.NewRequest(http.MethodGet, "/login", nil))
+
+	state := mustQueryValue(t, loginRec.Header().Get("Location"), "state")
+	sessionCookie := mustCookie(t, loginRec.Result().Cookies(), "auth-session")
+	callbackReq := httptest.NewRequest(http.MethodGet, "/callback?state="+url.QueryEscape(state)+"&code=abc123", nil)
+	callbackReq.AddCookie(sessionCookie)
+	callbackRec := httptest.NewRecorder()
+
+	router.ServeHTTP(callbackRec, callbackReq)
+
+	updatedSession := mustCookie(t, callbackRec.Result().Cookies(), "auth-session")
+	sessionValues := decodeSessionValuesFromSessionCookie(t, updatedSession)
+	profile, _ := sessionValues["profile"].(map[string]interface{})
+
+	if len(profile) != 2 {
+		t.Fatalf("expected only name and email in session profile, got %#v", profile)
+	}
+	if profile["name"] != "Example Admin" {
+		t.Fatalf("expected name claim in session profile, got %#v", profile["name"])
+	}
+	if profile["email"] != "admin@example.com" {
+		t.Fatalf("expected email claim in session profile, got %#v", profile["email"])
+	}
+	if sessionValues["id_token"] != "raw-id-token" {
+		t.Fatalf("expected id_token to be stored for logout, got %#v", sessionValues["id_token"])
+	}
+}
+
 func TestUserPageRendersNameFromSessionProfile(t *testing.T) {
 	t.Parallel()
 
@@ -133,7 +192,7 @@ func TestUserPageRendersNameFromSessionProfile(t *testing.T) {
 	gob.Register(map[string]interface{}{})
 
 	router := gin.New()
-	store := cookie.NewStore([]byte("test-secret"))
+	store := cookiepkg.NewStore([]byte("test-secret"))
 	router.Use(sessions.Sessions("auth-session", store))
 	router.SetHTMLTemplate(template.Must(template.New("user.html").Parse(`{{ .name }}|{{ .email }}`)))
 	router.GET("/user", func(c *gin.Context) {
@@ -266,19 +325,68 @@ func TestLogoutPageClearsSessionAndRedirectsHome(t *testing.T) {
 	}
 }
 
+func TestLogoutPageRedirectsToProviderLogoutWhenSupported(t *testing.T) {
+	t.Parallel()
+
+	auth := &stubAuthFlow{
+		exchangeToken: (&oauth2.Token{AccessToken: "access-token"}).WithExtra(map[string]interface{}{
+			"id_token": "raw-id-token",
+		}),
+		profile: map[string]interface{}{
+			"name":  "Example Admin",
+			"email": "admin@example.com",
+		},
+		logoutURL: "https://issuer.example/logout?id_token_hint=raw-id-token",
+	}
+	router := newAuthTestRouter(auth)
+
+	loginRec := httptest.NewRecorder()
+	router.ServeHTTP(loginRec, httptest.NewRequest(http.MethodGet, "/login", nil))
+
+	state := mustQueryValue(t, loginRec.Header().Get("Location"), "state")
+	sessionCookie := mustCookie(t, loginRec.Result().Cookies(), "auth-session")
+
+	callbackReq := httptest.NewRequest(http.MethodGet, "/callback?state="+url.QueryEscape(state)+"&code=abc123", nil)
+	callbackReq.AddCookie(sessionCookie)
+	callbackRec := httptest.NewRecorder()
+	router.ServeHTTP(callbackRec, callbackReq)
+
+	updatedSession := mustCookie(t, callbackRec.Result().Cookies(), "auth-session")
+	logoutReq := httptest.NewRequest(http.MethodGet, "/logout", nil)
+	logoutReq.AddCookie(updatedSession)
+	logoutRec := httptest.NewRecorder()
+
+	router.ServeHTTP(logoutRec, logoutReq)
+
+	if logoutRec.Code != http.StatusTemporaryRedirect {
+		t.Fatalf("expected status %d, got %d", http.StatusTemporaryRedirect, logoutRec.Code)
+	}
+	if location := logoutRec.Header().Get("Location"); location != auth.logoutURL {
+		t.Fatalf("expected redirect to provider logout URL, got %q", location)
+	}
+	if auth.logoutHint != "raw-id-token" {
+		t.Fatalf("expected id token hint %q, got %q", "raw-id-token", auth.logoutHint)
+	}
+
+	clearedCookie := mustCookie(t, logoutRec.Result().Cookies(), "auth-session")
+	if clearedCookie.MaxAge >= 0 {
+		t.Fatalf("expected cleared session cookie MaxAge < 0, got %d", clearedCookie.MaxAge)
+	}
+}
+
 func newAuthTestRouter(auth authFlow) *gin.Engine {
 	gin.SetMode(gin.TestMode)
 
 	gob.Register(map[string]interface{}{})
 
 	router := gin.New()
-	store := cookie.NewStore([]byte("test-secret"))
+	store := cookiepkg.NewStore([]byte("test-secret"))
 	router.Use(sessions.Sessions("auth-session", store))
 	router.SetHTMLTemplate(template.Must(template.New("user.html").Parse(`{{ .name }}|{{ .email }}`)))
 
 	router.GET("/login", LoginPage(auth))
 	router.GET("/callback", CallbackPage(auth))
-	router.GET("/logout", LogoutPage())
+	router.GET("/logout", LogoutPage(auth))
 	router.GET("/user", UserPage)
 
 	return router
@@ -317,4 +425,18 @@ func assertSessionCookiePresent(t *testing.T, cookies []*http.Cookie) {
 	if cookie.Value == "" {
 		t.Fatal("expected auth-session cookie value")
 	}
+}
+
+func decodeSessionValuesFromSessionCookie(t *testing.T, cookie *http.Cookie) map[interface{}]interface{} {
+	t.Helper()
+
+	store := cookiepkg.NewStore([]byte("test-secret"))
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.AddCookie(cookie)
+	session, err := store.Get(req, "auth-session")
+	if err != nil {
+		t.Fatalf("decode session cookie: %v", err)
+	}
+
+	return session.Values
 }

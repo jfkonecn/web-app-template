@@ -25,12 +25,8 @@
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "secret": "replace-with-a-dev-only-client-secret",
-      "redirectUris": [
-        "http://localhost:8080/callback"
-      ],
-      "webOrigins": [
-        "http://localhost:8080"
-      ],
+      "redirectUris": ["http://localhost:8080/callback"],
+      "webOrigins": ["http://localhost:8080"],
       "standardFlowEnabled": true,
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
@@ -41,12 +37,7 @@
       "attributes": {
         "post.logout.redirect.uris": "http://localhost:8080/*"
       },
-      "defaultClientScopes": [
-        "profile",
-        "email",
-        "roles",
-        "web-origins"
-      ],
+      "defaultClientScopes": ["profile", "email", "roles", "web-origins"],
       "optionalClientScopes": [
         "address",
         "microprofile-jwt",
@@ -57,15 +48,13 @@
   ],
   "users": [
     {
-      "username": "admin-user",
+      "username": "admin",
       "enabled": true,
       "emailVerified": true,
       "firstName": "Admin",
       "lastName": "Admin",
       "email": "admin@example.com",
-      "realmRoles": [
-        "admin"
-      ],
+      "realmRoles": ["admin"],
       "credentials": [
         {
           "type": "password",
@@ -75,7 +64,7 @@
       ]
     },
     {
-      "username": "app-user",
+      "username": "app",
       "enabled": true,
       "emailVerified": true,
       "firstName": "App",
