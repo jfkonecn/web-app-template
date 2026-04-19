@@ -82,7 +82,7 @@ func TestCallbackPageSuccessStoresProfileAndRedirects(t *testing.T) {
 	auth := &stubAuthFlow{
 		exchangeToken: &oauth2.Token{AccessToken: "access-token"},
 		profile: map[string]interface{}{
-			"name":  "Dex Admin",
+			"name":  "Example Admin",
 			"email": "admin@example.com",
 		},
 	}
@@ -118,7 +118,7 @@ func TestCallbackPageSuccessStoresProfileAndRedirects(t *testing.T) {
 		t.Fatalf("expected status %d, got %d", http.StatusOK, userRec.Code)
 	}
 	body := userRec.Body.String()
-	if !strings.Contains(body, "Dex Admin") {
+	if !strings.Contains(body, "Example Admin") {
 		t.Fatalf("expected rendered profile name, got body %q", body)
 	}
 	if !strings.Contains(body, "admin@example.com") {
@@ -139,7 +139,7 @@ func TestUserPageRendersNameFromSessionProfile(t *testing.T) {
 	router.GET("/user", func(c *gin.Context) {
 		session := sessions.Default(c)
 		session.Set("profile", map[string]interface{}{
-			"name":  "Dex Admin",
+			"name":  "Example Admin",
 			"email": "admin@example.com",
 		})
 		if err := session.Save(); err != nil {
@@ -157,7 +157,7 @@ func TestUserPageRendersNameFromSessionProfile(t *testing.T) {
 	if rec.Code != http.StatusOK {
 		t.Fatalf("expected status %d, got %d", http.StatusOK, rec.Code)
 	}
-	if body := rec.Body.String(); body != "Dex Admin|admin@example.com" {
+	if body := rec.Body.String(); body != "Example Admin|admin@example.com" {
 		t.Fatalf("expected rendered profile details, got %q", body)
 	}
 }

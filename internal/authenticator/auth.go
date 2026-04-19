@@ -32,7 +32,7 @@ func New(config config.Config) (*Authenticator, error) {
 		ClientSecret: config.OIDCClientSecret,
 		RedirectURL:  config.OIDCCallbackURL,
 		Endpoint:     provider.Endpoint(),
-		Scopes:       []string{oidc.ScopeOpenID, "profile"},
+		Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
 	}
 
 	return &Authenticator{

@@ -61,9 +61,9 @@ func TestOpenRunsMigrationsUpDownUp(t *testing.T) {
 	t.Setenv("APP_HOST", "127.0.0.1")
 	t.Setenv("APP_PORT", "8080")
 	t.Setenv("SESSION_SECRET", "test-session-secret")
-	t.Setenv("OIDC_BASE_URL", "http://localhost:5556/dex")
-	t.Setenv("OIDC_CLIENT_ID", "example-app")
-	t.Setenv("OIDC_CLIENT_SECRET", "ZXhhbXBsZS1hcHAtc2VjcmV0")
+	t.Setenv("OIDC_BASE_URL", "http://localhost:8081/realms/web-app-template")
+	t.Setenv("OIDC_CLIENT_ID", "web-app-template")
+	t.Setenv("OIDC_CLIENT_SECRET", "replace-with-a-dev-only-client-secret")
 	t.Setenv("OIDC_CALLBACK_URL", "http://localhost:8080/callback")
 
 	migrationsDir := repoMigrationsDir(t)

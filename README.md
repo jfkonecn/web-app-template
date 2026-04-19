@@ -79,7 +79,7 @@ Environment files:
 - Copy `.env.example` to `.env` for local development
 - `.env` is ignored by git and is loaded automatically by the run and migration scripts
 - `internal/config` no longer provides runtime defaults; startup exits if any required env var is missing or empty
-- Logout is local to the app session; the dev Dex setup in this repo does not use a provider logout redirect
+- Logout is local to the app session; the dev Keycloak setup in this repo does not use a provider logout redirect
 
 Server defaults:
 
@@ -91,6 +91,32 @@ Server defaults:
 Health endpoint:
 
 - `GET /healthz`
+
+## Keycloak
+
+Start Keycloak with Docker Compose:
+
+```bash
+./scripts/run-keycloak.sh
+```
+
+The bundled import file at `docker-dev/keycloak/realm-web-app-template.json` removes the manual setup from the Keycloak Docker guide. It creates:
+
+- Realm: `web-app-template`
+- Client ID: `web-app-template`
+- Client secret: `replace-with-a-dev-only-client-secret`
+- Realm role: `admin`
+- Admin app user: `admin-user` / `password`
+- Plain app user: `app-user` / `password`
+- Admin console login: `admin` / `admin`
+
+Keycloak runs on `http://localhost:8081`, and `.env.example` is preconfigured to use:
+
+- `OIDC_BASE_URL=http://localhost:8081/realms/web-app-template`
+- `OIDC_CLIENT_ID=web-app-template`
+- `OIDC_CLIENT_SECRET=replace-with-a-dev-only-client-secret`
+
+Open the admin console at `http://localhost:8081/admin/`.
 
 ## Logging
 
