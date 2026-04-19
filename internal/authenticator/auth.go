@@ -17,7 +17,7 @@ import (
 type Authenticator struct {
 	*oidc.Provider
 	oauth2.Config
-	endSessionEndpoint   string
+	endSessionEndpoint    string
 	postLogoutRedirectURL string
 }
 
